@@ -3,6 +3,8 @@ package com.example.delivery_20.ui.navigation
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.automirrored.filled.ArrowBack // ¡AGREGA ESTE IMPORT!
+import androidx.compose.material.icons.automirrored.filled.ExitToApp // ¡AGREGA ESTE IMPORT!
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -32,12 +34,8 @@ fun MainApp() {
     // Lista de items del drawer
     val drawerItems = listOf(
         DrawerItem("Inicio", Icons.Default.Home, Screen.Home.route),
-        DrawerItem("Buscar", Icons.Default.Search, "search"),
-        DrawerItem("Favoritos", Icons.Default.Favorite, "favorites"),
-        DrawerItem("Historial", Icons.Default.History, "history"),
-        DrawerItem("Promociones", Icons.Default.LocalOffer, "offers"),
-        DrawerItem("Configuración", Icons.Default.Settings, "settings"),
-        DrawerItem("Ayuda", Icons.Default.Help, "help"),
+        DrawerItem("Buscar", Icons.Default.Search, Screen.Search.route),
+        DrawerItem("Historial", Icons.Default.History, Screen.History.route),
     )
 
     ModalNavigationDrawer(
@@ -85,7 +83,7 @@ fun MainApp() {
             topBar = {
                 TopAppBarWithMenu(
                     title = getScreenTitle(currentDestination),
-                    navController = navController, // AÑADIDO: pasar navController
+                    navController = navController,
                     onMenuClick = {
                         coroutineScope.launch {
                             drawerState.open()
@@ -187,7 +185,7 @@ fun DrawerFooter(
         )
 
         NavigationDrawerItem(
-            icon = { Icon(Icons.Default.ExitToApp, contentDescription = "Cerrar sesión") },
+            icon = { Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Cerrar sesión") },
             label = { Text("Cerrar sesión") },
             selected = false,
             onClick = {
@@ -203,13 +201,12 @@ fun DrawerFooter(
     }
 }
 
-
-// TopAppBar personalizado con menú - CORREGIDO
+// TopAppBar personalizado con menú
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBarWithMenu(
     title: String,
-    navController: NavHostController, // AÑADIDO: parámetro navController
+    navController: NavHostController,
     onMenuClick: () -> Unit,
     showBackButton: Boolean = false,
     onBackClick: () -> Unit = {}
@@ -224,7 +221,10 @@ fun TopAppBarWithMenu(
         navigationIcon = {
             if (showBackButton) {
                 IconButton(onClick = onBackClick) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack, // ¡AHORA FUNCIONARÁ!
+                        contentDescription = "Volver"
+                    )
                 }
             } else {
                 IconButton(onClick = onMenuClick) {
@@ -233,9 +233,7 @@ fun TopAppBarWithMenu(
             }
         },
         actions = {
-            IconButton(onClick = {
-                navController.navigate(Screen.Cart.route) // CORREGIDO: usa el parámetro
-            }) {
+            IconButton(onClick = { navController.navigate(Screen.Cart.route) }) {
                 Icon(Icons.Default.ShoppingCart, contentDescription = "Carrito")
             }
         },
@@ -254,7 +252,6 @@ fun BottomNavigationBar(
     NavigationBar {
         val bottomNavItems = listOf(
             BottomNavItem("Inicio", Icons.Default.Home, Screen.Home.route),
-            BottomNavItem("Buscar", Icons.Default.Search, "search"),
             BottomNavItem("Carrito", Icons.Default.ShoppingCart, Screen.Cart.route),
             BottomNavItem("Perfil", Icons.Default.Person, Screen.Profile.route)
         )

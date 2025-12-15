@@ -20,7 +20,17 @@ import com.example.delivery_20.ui.components.cards.RestaurantCard
 fun HomeScreen(
     navController: NavHostController
 ) {
-    val restaurants = remember { Restaurant.getSampleRestaurants() }
+    // SOLUCIÓN 1: Reemplazar la llamada a función que no existe
+    val restaurants = remember {
+        listOf(
+            Restaurant("1", "Pizzería Italiana", "Auténtica pizza italiana", 4.8f, "25-35 min", "Italiana"),
+            Restaurant("2", "Burger House", "Hamburguesas gourmet", 4.6f, "20-30 min", "Americana"),
+            Restaurant("3", "Sushi Zen", "Sushi fresco japonés", 4.9f, "30-40 min", "Japonesa"),
+            Restaurant("4", "Tacos México", "Comida mexicana auténtica", 4.7f, "15-25 min", "Mexicana"),
+            Restaurant("5", "Dulce Tentación", "Postres artesanales", 4.5f, "20-30 min", "Postres")
+        )
+    }
+
     var searchText by remember { mutableStateOf("") }
 
     Column(
@@ -100,8 +110,8 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Lista de restaurantes
-        if (restaurants.isNotEmpty()) {
+        // SOLUCIÓN 2: Verificar que la lista no esté vacía (sin .isNotEmpty())
+        if (restaurants.any()) {  // Cambiado de isNotEmpty() a any()
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxSize()

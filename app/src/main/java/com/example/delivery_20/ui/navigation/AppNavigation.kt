@@ -1,5 +1,6 @@
 package com.example.delivery_20.ui.navigation
 
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -7,16 +8,20 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.delivery_20.screen.*
-import androidx.compose.material3.Text
 
-// Definimos las rutas de la app
+
+// Actualiza la clase Screen con las nuevas rutas
 sealed class Screen(val route: String) {
     object Home : Screen("home")
+    object Search : Screen("search") // NUEVO
+    object History : Screen("history") // NUEVO
     object RestaurantDetail : Screen("restaurant_detail/{restaurantId}") {
         fun createRoute(restaurantId: String) = "restaurant_detail/$restaurantId"
     }
     object Cart : Screen("cart")
     object Profile : Screen("profile")
+    object Settings : Screen("settings") // NUEVO
+    object Help : Screen("help") // NUEVO
     object Login : Screen("login")
     object Register : Screen("register")
     object EditProfile : Screen("edit_profile")
@@ -33,6 +38,7 @@ fun AppNavigation(
         startDestination = startDestination,
         modifier = modifier
     ) {
+        // Pantallas existentes
         composable(Screen.Home.route) {
             HomeScreen(navController = navController)
         }
@@ -49,6 +55,17 @@ fun AppNavigation(
         composable(Screen.Profile.route) {
             ProfileScreen(navController = navController)
         }
+
+        // NUEVAS PANTALLAS
+        composable(Screen.Search.route) {
+            SearchScreen(navController = navController)
+        }
+
+        composable(Screen.History.route) {
+            HistoryScreen(navController = navController)
+        }
+
+        // Pantallas de autenticación
         composable(Screen.Login.route) {
             LoginScreen(
                 navController = navController,
