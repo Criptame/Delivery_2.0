@@ -90,6 +90,7 @@ dependencies {
 
     //xd
     implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.compose.material:material-icons-extended:1.7.7")
 
 
     // Para permisos camara
