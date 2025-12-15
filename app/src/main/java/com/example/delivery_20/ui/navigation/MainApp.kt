@@ -16,6 +16,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.delivery_20.screen.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CoroutineScope
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,6 +85,7 @@ fun MainApp() {
             topBar = {
                 TopAppBarWithMenu(
                     title = getScreenTitle(currentDestination),
+                    navController = navController, // AÑADIDO: pasar navController
                     onMenuClick = {
                         coroutineScope.launch {
                             drawerState.open()
@@ -162,7 +164,7 @@ fun DrawerHeader() {
 fun DrawerFooter(
     navController: NavHostController,
     drawerState: DrawerState,
-    coroutineScope: androidx.coroutines.CoroutineScope
+    coroutineScope: CoroutineScope
 ) {
     Column(
         modifier = Modifier
@@ -201,11 +203,13 @@ fun DrawerFooter(
     }
 }
 
-// TopAppBar personalizado con menú
+
+// TopAppBar personalizado con menú - CORREGIDO
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBarWithMenu(
     title: String,
+    navController: NavHostController, // AÑADIDO: parámetro navController
     onMenuClick: () -> Unit,
     showBackButton: Boolean = false,
     onBackClick: () -> Unit = {}
@@ -229,7 +233,9 @@ fun TopAppBarWithMenu(
             }
         },
         actions = {
-            IconButton(onClick = { navController.navigate(Screen.Cart.route) }) {
+            IconButton(onClick = {
+                navController.navigate(Screen.Cart.route) // CORREGIDO: usa el parámetro
+            }) {
                 Icon(Icons.Default.ShoppingCart, contentDescription = "Carrito")
             }
         },

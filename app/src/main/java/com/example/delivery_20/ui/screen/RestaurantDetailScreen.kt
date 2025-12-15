@@ -1,6 +1,7 @@
 package com.example.delivery_20.screen
 
 import androidx.compose.foundation.layout.*
+import com.example.delivery_20.model.Restaurant
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
