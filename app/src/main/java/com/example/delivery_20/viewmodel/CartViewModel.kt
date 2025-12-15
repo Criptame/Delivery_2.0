@@ -29,20 +29,28 @@ class CartViewModel : ViewModel() {
 
     // Agregar producto al carrito
     fun addToCart(foodItem: FoodItem) {
+        println("🛒 DEBUG: addToCart llamado - Producto: ${foodItem.name}")
         viewModelScope.launch {
             val currentItems = _cartItems.value.toMutableList()
             val existingItem = currentItems.find { it.foodItem.id == foodItem.id }
 
+            println("🛒 DEBUG: Productos antes: ${currentItems.size}")
+
             if (existingItem != null) {
                 // Si ya existe, incrementar cantidad
                 existingItem.quantity++
+                println("🛒 DEBUG: Incrementado cantidad. Nueva cantidad: ${existingItem.quantity}")
             } else {
                 // Si no existe, agregar nuevo
                 currentItems.add(CartItem(foodItem, 1))
+                println("🛒 DEBUG: Nuevo producto agregado")
             }
 
             _cartItems.value = currentItems
             updateTotal()
+
+            println("🛒 DEBUG: Productos después: ${_cartItems.value.size}")
+            println("🛒 DEBUG: Total items: ${_cartItems.value.sumOf { it.quantity }}")
         }
     }
 
