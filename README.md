@@ -4,12 +4,12 @@
 1. Gabriel Molina
 2. Guillermo Santander
 
-## 📱 Funcionalidades implementadas:
-- ✅ Pantalla de inicio con lista de restaurantes
-- ✅ Pantalla de productos por restaurante
-- ✅ Carrito de compras (en desarrollo)
-- ✅ Perfil de usuario
-- ✅ Navegación entre pantallas
+## Funcionalidades implementadas:
+- Pantalla de inicio con lista de restaurantes
+- Pantalla de productos por restaurante
+- Carrito de compras (en desarrollo)
+- Perfil de usuario
+- Navegación entre pantallas
 
 ##Tecnologías usadas:
 - Kotlin
