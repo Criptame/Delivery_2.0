@@ -8,11 +8,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.example.delivery_20.model.FoodItem
 
-// Modelo para items del carrito
+// ✅ CORRECTO: Usa val y hazlo INMUTABLE
 data class CartItem(
     val foodItem: FoodItem,
-    var quantity: Int = 1
-)
+    val quantity: Int = 1  // ← CAMBIÉ a val
+) {
+    // Métodos para "modificar" de forma inmutable
+    fun increment(): CartItem = copy(quantity = quantity + 1)
+    fun decrement(): CartItem = copy(quantity = quantity - 1)
+}
 
 class CartViewModel : ViewModel() {
     // Estado del carrito
@@ -27,26 +31,32 @@ class CartViewModel : ViewModel() {
         updateTotal()
     }
 
-    // Agregar producto al carrito
+    // ✅ CORREGIDO: Agregar producto al carrito
     fun addToCart(foodItem: FoodItem) {
-        println("🛒 DEBUG: addToCart llamado - Producto: ${foodItem.name}")
         viewModelScope.launch {
-            val currentItems = _cartItems.value.toMutableList()
-            val existingItem = currentItems.find { it.foodItem.id == foodItem.id }
+            println("🛒 DEBUG: addToCart llamado - Producto: ${foodItem.name}")
+
+            val currentItems = _cartItems.value
+            val existingIndex = currentItems.indexOfFirst { it.foodItem.id == foodItem.id }
 
             println("🛒 DEBUG: Productos antes: ${currentItems.size}")
 
-            if (existingItem != null) {
-                // Si ya existe, incrementar cantidad
-                existingItem.quantity++
-                println("🛒 DEBUG: Incrementado cantidad. Nueva cantidad: ${existingItem.quantity}")
+            val newItems = if (existingIndex != -1) {
+                // ✅ CORRECTO: Crear NUEVO objeto con copy()
+                val existingItem = currentItems[existingIndex]
+                currentItems.toMutableList().apply {
+                    this[existingIndex] = existingItem.increment()
+                }.also {
+                    println("🛒 DEBUG: Incrementado cantidad. Nueva cantidad: ${existingItem.quantity + 1}")
+                }
             } else {
-                // Si no existe, agregar nuevo
-                currentItems.add(CartItem(foodItem, 1))
-                println("🛒 DEBUG: Nuevo producto agregado")
+                // ✅ CORRECTO: Agregar nuevo item
+                (currentItems + CartItem(foodItem, 1)).also {
+                    println("🛒 DEBUG: Nuevo producto agregado")
+                }
             }
 
-            _cartItems.value = currentItems
+            _cartItems.value = newItems
             updateTotal()
 
             println("🛒 DEBUG: Productos después: ${_cartItems.value.size}")
@@ -54,52 +64,55 @@ class CartViewModel : ViewModel() {
         }
     }
 
-    // Incrementar cantidad de un item
+    // ✅ CORREGIDO: Incrementar cantidad de un item
     fun incrementQuantity(itemId: String) {
         viewModelScope.launch {
-            val currentItems = _cartItems.value.toMutableList()
-            val item = currentItems.find { it.foodItem.id == itemId }
-
-            item?.let {
-                it.quantity++
-                _cartItems.value = currentItems
-                updateTotal()
-            }
-        }
-    }
-
-    // Decrementar cantidad de un item
-    fun decrementQuantity(itemId: String) {
-        viewModelScope.launch {
-            val currentItems = _cartItems.value.toMutableList()
+            val currentItems = _cartItems.value
             val itemIndex = currentItems.indexOfFirst { it.foodItem.id == itemId }
 
             if (itemIndex != -1) {
                 val item = currentItems[itemIndex]
-                if (item.quantity > 1) {
-                    // Si tiene más de 1, decrementar
-                    item.quantity--
-                } else {
-                    // Si tiene 1, eliminar del carrito
-                    currentItems.removeAt(itemIndex)
+                val newItems = currentItems.toMutableList().apply {
+                    this[itemIndex] = item.increment()
                 }
-                _cartItems.value = currentItems
+                _cartItems.value = newItems
                 updateTotal()
             }
         }
     }
 
-    // Eliminar item completamente del carrito
+    // ✅ CORREGIDO: Decrementar cantidad de un item
+    fun decrementQuantity(itemId: String) {
+        viewModelScope.launch {
+            val currentItems = _cartItems.value
+            val itemIndex = currentItems.indexOfFirst { it.foodItem.id == itemId }
+
+            if (itemIndex != -1) {
+                val item = currentItems[itemIndex]
+                val newItems = if (item.quantity > 1) {
+                    currentItems.toMutableList().apply {
+                        this[itemIndex] = item.decrement()
+                    }
+                } else {
+                    // Eliminar si cantidad llega a 0
+                    currentItems.filterNot { it.foodItem.id == itemId }
+                }
+                _cartItems.value = newItems
+                updateTotal()
+            }
+        }
+    }
+
+    // ✅ CORREGIDO: Eliminar item completamente del carrito
     fun removeItem(itemId: String) {
         viewModelScope.launch {
-            val currentItems = _cartItems.value.toMutableList()
-            currentItems.removeAll { it.foodItem.id == itemId }
-            _cartItems.value = currentItems
+            val newItems = _cartItems.value.filterNot { it.foodItem.id == itemId }
+            _cartItems.value = newItems
             updateTotal()
         }
     }
 
-    // Limpiar todo el carrito
+    // ✅ CORRECTO: Limpiar todo el carrito
     fun clearCart() {
         viewModelScope.launch {
             _cartItems.value = emptyList()
@@ -107,13 +120,14 @@ class CartViewModel : ViewModel() {
         }
     }
 
-    // Calcular el total
+    // ✅ CORRECTO: Calcular el total
     private fun updateTotal() {
         val total = _cartItems.value.sumOf { it.foodItem.price * it.quantity }
         _cartTotal.value = total
+        println("💰 Total actualizado: $total")
     }
 
-    // Obtener cantidad de items (para el badge)
+    // ✅ CORRECTO: Obtener cantidad de items (para el badge)
     fun getItemCount(): Int {
         return _cartItems.value.sumOf { it.quantity }
     }
