@@ -19,24 +19,22 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.delivery_20.model.CartItem
 import com.example.delivery_20.viewmodel.CartViewModel
+import com.example.delivery_20.ui.navigation.Screen
 
 @Composable
 fun CartScreen(
     navController: NavHostController,
-    cartViewModel: CartViewModel // ← Recibir como parámetro (NO viewModel() aquí)
+    cartViewModel: CartViewModel
 ) {
-    // Observar estado del carrito
     val cartItems by cartViewModel.cartItems.collectAsState()
     val cartTotal by cartViewModel.cartTotal.collectAsState()
 
-    // Debug para verificar
     println("🛒 CartScreen - Items en carrito: ${cartItems.size}")
     cartItems.forEachIndexed { index, item ->
         println("🛒 CartScreen - [$index] ${item.foodItem.name}: ${item.quantity}")
     }
 
-    // Costo de envío fijo
-    val shippingCost = 2000 // $2.000 CLP
+    val shippingCost = 2000
     val finalTotal = cartTotal + shippingCost
 
     Column(
@@ -45,7 +43,6 @@ fun CartScreen(
             .padding(16.dp)
     ) {
         if (cartItems.isNotEmpty()) {
-            // Título
             Text(
                 text = "Tu Carrito (${cartItems.size} ${if (cartItems.size == 1) "producto" else "productos"})",
                 style = MaterialTheme.typography.headlineMedium,
@@ -53,7 +50,6 @@ fun CartScreen(
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            // Lista de items
             LazyColumn(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -68,12 +64,10 @@ fun CartScreen(
                 }
             }
 
-            // Resumen y botones
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Resumen
                 Surface(
                     shape = MaterialTheme.shapes.medium,
                     tonalElevation = 2.dp,
@@ -120,11 +114,10 @@ fun CartScreen(
                     }
                 }
 
-                // Botones
+                // ✅ CAMBIADO: Navegación corregida
                 Button(
                     onClick = {
-                        // Navegar a la pantalla de confirmación
-                        navController.navigate("order_confirmation")
+                        navController.navigate(Screen.OrderConfirmation.route)
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
@@ -133,7 +126,6 @@ fun CartScreen(
                 ) {
                     Text("Continuar con el pago")
                 }
-
 
                 OutlinedButton(
                     onClick = { navController.popBackStack() },
@@ -150,7 +142,6 @@ fun CartScreen(
                 }
             }
         } else {
-            // Carrito vacío
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -183,7 +174,7 @@ fun CartScreen(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 Button(
-                    onClick = { navController.navigate("home") },
+                    onClick = { navController.navigate(Screen.Home.route) },
                     modifier = Modifier.width(200.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary
@@ -248,7 +239,6 @@ fun CartItemCard(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Contador de cantidad
             Surface(
                 shape = MaterialTheme.shapes.small,
                 tonalElevation = 1.dp
@@ -291,7 +281,6 @@ fun CartItemCard(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Total del item y botón eliminar
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -318,7 +307,6 @@ fun CartItemCard(
     }
 }
 
-// Función para formatear precios en formato chileno
 private fun formatPrice(price: Int): String {
     return if (price >= 1000) {
         "$${String.format("%,d", price)}"

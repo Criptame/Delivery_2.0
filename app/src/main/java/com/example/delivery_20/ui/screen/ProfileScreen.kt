@@ -1,7 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 package com.example.delivery_20.screen
 
-
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Row
@@ -27,6 +26,7 @@ import androidx.navigation.NavHostController
 import com.example.delivery_20.state.SessionManager
 import com.example.delivery_20.ui.components.buttons.PrimaryButton
 import com.example.delivery_20.ui.components.buttons.SecondaryButton
+import com.example.delivery_20.ui.navigation.Screen
 
 @Composable
 fun ProfileScreen(
@@ -40,10 +40,8 @@ fun ProfileScreen(
             .padding(16.dp)
     ) {
         if (SessionManager.isLoggedIn && currentUser != null) {
-            // Usuario logueado - mostrar perfil
             LoggedInProfile(navController, currentUser)
         } else {
-            // Usuario no logueado - mostrar opciones de autenticación
             GuestProfile(navController)
         }
     }
@@ -58,7 +56,6 @@ fun LoggedInProfile(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth()
     ) {
-        // Avatar
         Surface(
             modifier = Modifier
                 .size(100.dp)
@@ -109,7 +106,6 @@ fun LoggedInProfile(
 
     Spacer(modifier = Modifier.height(32.dp))
 
-    // Información del usuario
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -119,44 +115,48 @@ fun LoggedInProfile(
 
     Spacer(modifier = Modifier.height(32.dp))
 
-    // Opciones
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         ProfileOption(
             icon = Icons.Default.History,
             title = "Historial de pedidos",
-            onClick = { /* TODO */ }
+            onClick = { navController.navigate(Screen.History.route) } // ✅ CORREGIDO
         )
 
         ProfileOption(
             icon = Icons.Default.Edit,
             title = "Editar perfil",
-            onClick = { navController.navigate("edit_profile") }
+            onClick = { navController.navigate(Screen.EditProfile.route) }
         )
 
         ProfileOption(
             icon = Icons.Default.LocationOn,
             title = "Seguimiento GPS",
-            onClick = { navController.navigate("location") }
+            onClick = { navController.navigate(Screen.Location.route) }
         )
 
         ProfileOption(
             icon = Icons.Default.Settings,
             title = "Configuración",
-            onClick = { /* TODO */ }
+            onClick = { navController.navigate(Screen.Settings.route) } // ✅ CORREGIDO
+        )
+
+        ProfileOption(
+            icon = Icons.Default.Help,
+            title = "Ayuda y soporte",
+            onClick = { navController.navigate(Screen.Help.route) }
         )
     }
 
     Spacer(modifier = Modifier.height(32.dp))
 
-    // Botón de cerrar sesión
     SecondaryButton(
         text = "Cerrar sesión",
         onClick = {
             SessionManager.logout()
-            navController.navigate("home") {
-                popUpTo("home") { inclusive = true }
+            navController.navigate(Screen.Home.route) {
+                popUpTo(Screen.Home.route) { inclusive = true }
             }
         },
         modifier = Modifier.fillMaxWidth()
@@ -210,7 +210,7 @@ fun GuestProfile(navController: NavHostController) {
 
         PrimaryButton(
             text = "Iniciar sesión",
-            onClick = { navController.navigate("login") },
+            onClick = { navController.navigate(Screen.Login.route) },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -218,7 +218,7 @@ fun GuestProfile(navController: NavHostController) {
 
         SecondaryButton(
             text = "Crear cuenta",
-            onClick = { navController.navigate("register") },
+            onClick = { navController.navigate(Screen.Register.route) },
             modifier = Modifier.fillMaxWidth()
         )
     }

@@ -19,6 +19,11 @@ sealed class Screen(val route: String) {
     object Location : Screen("location")
     object Login : Screen("login")
     object Register : Screen("register")
+    object Search : Screen("search")  // ✅ AGREGADO
+    object History : Screen("history") // ✅ AGREGADO
+    object Settings : Screen("settings") // ✅ AGREGADO
+    object Help : Screen("help") // ✅ AGREGADO
+    object OrderConfirmation : Screen("order_confirmation") // ✅ AGREGADO
 }
 
 @Composable
@@ -37,21 +42,21 @@ fun AppNavigation(
             HomeScreen(navController = navController)
         }
 
-        // 2. Detalle Restaurante (CON cartViewModel)
+        // 2. Detalle Restaurante
         composable(Screen.RestaurantDetail.route) { backStackEntry ->
             val restaurantId = backStackEntry.arguments?.getString("restaurantId") ?: ""
             RestaurantDetailScreen(
                 navController = navController,
                 restaurantId = restaurantId,
-                cartViewModel = viewModel()  // ← ¡AGREGA ESTO!
+                cartViewModel = viewModel()
             )
         }
 
-        // 3. Carrito (CON cartViewModel)
+        // 3. Carrito
         composable(Screen.Cart.route) {
             CartScreen(
                 navController = navController,
-                cartViewModel = viewModel()  // ← ¡AGREGA ESTO!
+                cartViewModel = viewModel()
             )
         }
 
@@ -60,7 +65,7 @@ fun AppNavigation(
             ProfileScreen(navController = navController)
         }
 
-        // 5. Cámara (SIN cartViewModel)
+        // 5. Cámara
         composable(Screen.Camera.route) {
             CameraScreen(
                 navController = navController,
@@ -94,6 +99,34 @@ fun AppNavigation(
                     navController.popBackStack()
                     navController.navigate(Screen.Profile.route)
                 }
+            )
+        }
+
+        // ✅ 9. Búsqueda (NUEVO)
+        composable(Screen.Search.route) {
+            SearchScreen(navController = navController)
+        }
+
+        // ✅ 10. Historial (NUEVO)
+        composable(Screen.History.route) {
+            HistoryScreen(navController = navController)
+        }
+
+        // ✅ 11. Configuración (NUEVO)
+        composable(Screen.Settings.route) {
+            SettingsScreen(navController = navController)
+        }
+
+        // ✅ 12. Ayuda (NUEVO)
+        composable(Screen.Help.route) {
+            HelpScreen(navController = navController)
+        }
+
+        // ✅ 13. Confirmación de Pedido (NUEVO)
+        composable(Screen.OrderConfirmation.route) {
+            OrderConfirmationScreen(
+                navController = navController,
+                cartViewModel = viewModel()
             )
         }
     }

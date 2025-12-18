@@ -24,17 +24,14 @@ import kotlinx.coroutines.delay
 fun RestaurantDetailScreen(
     navController: NavHostController,
     restaurantId: String,
-    cartViewModel: CartViewModel // ← Recibir como parámetro (NO viewModel() aquí)
+    cartViewModel: CartViewModel
 ) {
-    // Observar estado del carrito
     val cartItems by cartViewModel.cartItems.collectAsState()
     val totalItems = cartItems.sumOf { it.quantity }
 
-    // Debug para verificar
     println("📱 RestaurantDetailScreen - Items en carrito: ${cartItems.size}")
     println("📱 RestaurantDetailScreen - Total items: $totalItems")
 
-    // Determinar qué restaurante es según el ID
     val (restaurant, foodItems) = remember(restaurantId) {
         when (restaurantId) {
             "1" -> Pair(
@@ -105,27 +102,21 @@ fun RestaurantDetailScreen(
             )
         }
     }
-    Button(
-        onClick = { navController.navigate("camera") },
-        modifier = Modifier.padding(16.dp)
-    ) {
-        Icon(Icons.Default.Camera, contentDescription = "Tomar foto")
-        Spacer(modifier = Modifier.width(8.dp))
-        Text("Tomar foto del pedido")
-    }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Column {
                         Text(restaurant.name)
-                        // Mostrar info del carrito
-                        Text(
-                            "🛒 Carrito: $totalItems items",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold
-                        )
+                        if (totalItems > 0) {
+                            Text(
+                                "🛒 Carrito: $totalItems items",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 },
                 navigationIcon = {
@@ -137,7 +128,6 @@ fun RestaurantDetailScreen(
                     }
                 },
                 actions = {
-                    // Badge del carrito
                     BadgedBox(
                         badge = {
                             if (totalItems > 0) {
@@ -147,7 +137,7 @@ fun RestaurantDetailScreen(
                             }
                         }
                     ) {
-                        IconButton(onClick = { navController.navigate("cart") }) {
+                        IconButton(onClick = { navController.navigate(com.example.delivery_20.ui.navigation.Screen.Cart.route) }) {
                             Icon(
                                 Icons.Default.ShoppingCart,
                                 contentDescription = "Carrito"
@@ -156,6 +146,14 @@ fun RestaurantDetailScreen(
                     }
                 }
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { navController.navigate(com.example.delivery_20.ui.navigation.Screen.Camera.route) },
+                containerColor = MaterialTheme.colorScheme.primary
+            ) {
+                Icon(Icons.Default.Camera, contentDescription = "Tomar foto")
+            }
         }
     ) { paddingValues ->
         Column(
@@ -163,7 +161,6 @@ fun RestaurantDetailScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Panel informativo del carrito
             if (totalItems > 0) {
                 Surface(
                     color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
@@ -184,7 +181,7 @@ fun RestaurantDetailScreen(
                             color = MaterialTheme.colorScheme.primary
                         )
                         TextButton(
-                            onClick = { navController.navigate("cart") },
+                            onClick = { navController.navigate(com.example.delivery_20.ui.navigation.Screen.Cart.route) },
                             modifier = Modifier.height(32.dp)
                         ) {
                             Text("Ver carrito")
@@ -193,7 +190,6 @@ fun RestaurantDetailScreen(
                 }
             }
 
-            // Imagen del restaurante
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -210,7 +206,6 @@ fun RestaurantDetailScreen(
                 }
             }
 
-            // Encabezado del restaurante
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -275,7 +270,6 @@ fun RestaurantDetailScreen(
 
             Divider(modifier = Modifier.padding(horizontal = 16.dp))
 
-            // Menú del restaurante
             Text(
                 text = "Menú (${foodItems.size} productos)",
                 style = MaterialTheme.typography.titleLarge,
@@ -310,7 +304,116 @@ fun RestaurantDetailScreen(
     }
 }
 
-// Funciones para obtener los menús específicos de cada restaurante
+@Composable
+fun FoodItemCard(
+    foodItem: FoodItem,
+    cartViewModel: CartViewModel,
+    isInCart: Boolean = false
+) {
+    var isAdded by remember { mutableStateOf(false) }
+
+    val cartItems by cartViewModel.cartItems.collectAsState()
+    val currentIsInCart = cartItems.any { it.foodItem.id == foodItem.id }
+
+    if (isAdded) {
+        LaunchedEffect(Unit) {
+            kotlinx.coroutines.delay(1500)
+            isAdded = false
+        }
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = foodItem.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Medium
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = foodItem.description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = formatChileanPrice(foodItem.price),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                if (currentIsInCart) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        "✅ Ya en el carrito",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.Green
+                    )
+                }
+            }
+
+            Button(
+                onClick = {
+                    println("🛒 ===== BOTÓN PRESIONADO =====")
+                    println("🛒 Producto: ${foodItem.name}")
+                    println("🛒 ID: ${foodItem.id}")
+                    println("🛒 ¿Ya en carrito?: $currentIsInCart")
+
+                    cartViewModel.addToCart(foodItem)
+                    isAdded = true
+                },
+                modifier = Modifier.padding(start = 16.dp),
+                enabled = !currentIsInCart,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = when {
+                        currentIsInCart -> MaterialTheme.colorScheme.tertiaryContainer
+                        isAdded -> MaterialTheme.colorScheme.tertiary
+                        else -> MaterialTheme.colorScheme.primary
+                    }
+                )
+            ) {
+                if (currentIsInCart) {
+                    Icon(
+                        imageVector = Icons.Default.CheckCircle,
+                        contentDescription = "En carrito",
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("En carrito")
+                } else if (isAdded) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = "Agregado",
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Agregado")
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.AddShoppingCart,
+                        contentDescription = "Agregar",
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Agregar")
+                }
+            }
+        }
+    }
+}
+
+// FUNCIONES DE MENÚ (AGREGADAS AL FINAL)
 private fun getItalianRestaurantMenu(): List<FoodItem> {
     return listOf(
         FoodItem("i1", "Pizza Margarita", "Queso mozzarella y tomate fresco", 8990, "1"),
@@ -371,119 +474,6 @@ private fun getDessertRestaurantMenu(): List<FoodItem> {
     )
 }
 
-@Composable
-fun FoodItemCard(
-    foodItem: FoodItem,
-    cartViewModel: CartViewModel,
-    isInCart: Boolean = false
-) {
-    var isAdded by remember { mutableStateOf(false) }
-
-    // Observar el carrito para actualizar el estado
-    val cartItems by cartViewModel.cartItems.collectAsState()
-    val currentIsInCart = cartItems.any { it.foodItem.id == foodItem.id }
-
-    // Resetear estado "Agregado"
-    if (isAdded) {
-        LaunchedEffect(Unit) {
-            kotlinx.coroutines.delay(1500)
-            isAdded = false
-        }
-    }
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = foodItem.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = foodItem.description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = formatChileanPrice(foodItem.price),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-
-                if (currentIsInCart) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        "✅ Ya en el carrito",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color.Green
-                    )
-                }
-            }
-
-            Button(
-                onClick = {
-                    println("🛒 ===== BOTÓN PRESIONADO =====")
-                    println("🛒 Producto: ${foodItem.name}")
-                    println("🛒 ID: ${foodItem.id}")
-                    println("🛒 ¿Ya en carrito?: $currentIsInCart")
-
-                    // Agregar al carrito
-                    cartViewModel.addToCart(foodItem)
-                    isAdded = true
-                },
-                modifier = Modifier.padding(start = 16.dp),
-                enabled = !currentIsInCart,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = when {
-                        currentIsInCart -> MaterialTheme.colorScheme.tertiaryContainer
-                        isAdded -> MaterialTheme.colorScheme.tertiary
-                        else -> MaterialTheme.colorScheme.primary
-                    }
-                )
-            ) {
-                if (currentIsInCart) {
-                    Icon(
-                        imageVector = Icons.Default.CheckCircle,
-                        contentDescription = "En carrito",
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("En carrito")
-                } else if (isAdded) {
-                    Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = "Agregado",
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Agregado")
-                } else {
-                    Icon(
-                        imageVector = Icons.Default.AddShoppingCart,
-                        contentDescription = "Agregar",
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Agregar")
-                }
-            }
-        }
-    }
-}
-
-// Función para formatear precios en formato chileno
 private fun formatChileanPrice(price: Int): String {
     return if (price >= 1000) {
         "$${String.format("%,d", price)}"

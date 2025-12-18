@@ -3,8 +3,8 @@ package com.example.delivery_20.ui.navigation
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.automirrored.filled.ArrowBack // ¡AGREGA ESTE IMPORT!
-import androidx.compose.material.icons.automirrored.filled.ExitToApp // ¡AGREGA ESTE IMPORT!
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,15 +27,16 @@ fun MainApp() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    // Estado para el drawer
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
 
-    // Lista de items del drawer
+    // ✅ ACTUALIZADO: Drawer items con todas las rutas
     val drawerItems = listOf(
         DrawerItem("Inicio", Icons.Default.Home, Screen.Home.route),
         DrawerItem("Buscar", Icons.Default.Search, Screen.Search.route),
         DrawerItem("Historial", Icons.Default.History, Screen.History.route),
+        DrawerItem("Ayuda", Icons.Default.Help, Screen.Help.route),
+        DrawerItem("Configuración", Icons.Default.Settings, Screen.Settings.route)
     )
 
     ModalNavigationDrawer(
@@ -45,10 +46,8 @@ fun MainApp() {
             ModalDrawerSheet(
                 modifier = Modifier.width(280.dp)
             ) {
-                // Header del drawer
                 DrawerHeader()
 
-                // Items del drawer
                 drawerItems.forEach { item ->
                     NavigationDrawerItem(
                         icon = { Icon(item.icon, contentDescription = item.title) },
@@ -70,7 +69,6 @@ fun MainApp() {
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                // Footer del drawer
                 DrawerFooter(navController, drawerState, coroutineScope)
             }
         }
@@ -104,7 +102,7 @@ fun MainApp() {
         }
     }
 }
-// Componente para el header del drawer
+
 @Composable
 fun DrawerHeader() {
     Column(
@@ -113,7 +111,6 @@ fun DrawerHeader() {
             .padding(vertical = 24.dp, horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Logo o avatar
         Surface(
             modifier = Modifier.size(80.dp),
             shape = MaterialTheme.shapes.extraLarge,
@@ -148,7 +145,6 @@ fun DrawerHeader() {
     }
 }
 
-// Componente para el footer del drawer
 @Composable
 fun DrawerFooter(
     navController: NavHostController,
@@ -183,7 +179,6 @@ fun DrawerFooter(
                 coroutineScope.launch {
                     drawerState.close()
                 }
-                // Lógica de logout
                 navController.navigate(Screen.Home.route) {
                     popUpTo(Screen.Home.route) { inclusive = true }
                 }
@@ -192,7 +187,6 @@ fun DrawerFooter(
     }
 }
 
-// TopAppBar personalizado con menú
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBarWithMenu(
@@ -213,7 +207,7 @@ fun TopAppBarWithMenu(
             if (showBackButton) {
                 IconButton(onClick = onBackClick) {
                     Icon(
-                        Icons.AutoMirrored.Filled.ArrowBack, // ¡AHORA FUNCIONARÁ!
+                        Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Volver"
                     )
                 }
@@ -234,7 +228,6 @@ fun TopAppBarWithMenu(
     )
 }
 
-// Bottom Navigation Bar
 @Composable
 fun BottomNavigationBar(
     navController: NavHostController,
@@ -271,18 +264,23 @@ fun BottomNavigationBar(
     }
 }
 
-// Determinar si mostrar bottom bar
 fun shouldShowBottomBar(currentDestination: NavDestination?): Boolean {
     val noBottomBarRoutes = listOf(
         Screen.Login.route,
         Screen.Register.route,
-        "edit_profile"
+        Screen.EditProfile.route,
+        Screen.OrderConfirmation.route,
+        Screen.Camera.route,
+        Screen.Location.route,
+        Screen.Search.route,
+        Screen.History.route,
+        Screen.Settings.route,
+        Screen.Help.route
     )
 
     return currentDestination?.route !in noBottomBarRoutes
 }
 
-// Obtener título según pantalla
 fun getScreenTitle(currentDestination: NavDestination?): String {
     return when (currentDestination?.route) {
         Screen.Home.route -> "Food Delivery"
@@ -291,12 +289,18 @@ fun getScreenTitle(currentDestination: NavDestination?): String {
         Screen.Profile.route -> "Mi Perfil"
         Screen.Login.route -> "Iniciar Sesión"
         Screen.Register.route -> "Crear Cuenta"
-        "edit_profile" -> "Editar Perfil"
+        Screen.Search.route -> "Buscar"
+        Screen.History.route -> "Historial"
+        Screen.Settings.route -> "Configuración"
+        Screen.Help.route -> "Ayuda"
+        Screen.OrderConfirmation.route -> "Confirmación"
+        Screen.Camera.route -> "Cámara"
+        Screen.Location.route -> "Ubicación"
+        Screen.EditProfile.route -> "Editar Perfil"
         else -> "Food Delivery"
     }
 }
 
-// Data classes para los items
 data class DrawerItem(
     val title: String,
     val icon: androidx.compose.ui.graphics.vector.ImageVector,
