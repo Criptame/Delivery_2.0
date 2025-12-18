@@ -105,7 +105,14 @@ fun RestaurantDetailScreen(
             )
         }
     }
-
+    Button(
+        onClick = { navController.navigate("camera") },
+        modifier = Modifier.padding(16.dp)
+    ) {
+        Icon(Icons.Default.Camera, contentDescription = "Tomar foto")
+        Spacer(modifier = Modifier.width(8.dp))
+        Text("Tomar foto del pedido")
+    }
     Scaffold(
         topBar = {
             TopAppBar(

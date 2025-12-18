@@ -65,6 +65,20 @@ fun AppNavigation(
             HistoryScreen(navController = navController)
         }
 
+        // En la clase Screen:
+        object Camera : Screen("camera")
+
+// En el NavHost (dentro del composable):
+        composable(Screen.Camera.route) { backStackEntry ->
+            CameraScreen(
+                navController = navController,
+                onPhotoTaken = { uri ->
+                    // Guardar URI en ViewModel o estado global
+                    // Ejemplo: orderViewModel.setOrderPhoto(uri)
+                }
+            )
+        }
+
         // Pantallas de autenticación
         composable(Screen.Login.route) {
             LoginScreen(

@@ -51,6 +51,7 @@ fun SettingsScreen(navController: NavHostController) {
     }
 }
 
+
 @Composable
 fun SettingsOption(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
