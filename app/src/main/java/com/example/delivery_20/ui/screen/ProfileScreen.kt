@@ -136,6 +136,12 @@ fun LoggedInProfile(
         )
 
         ProfileOption(
+            icon = Icons.Default.LocationOn,
+            title = "Seguimiento GPS",
+            onClick = { navController.navigate("location") }
+        )
+
+        ProfileOption(
             icon = Icons.Default.Settings,
             title = "Configuración",
             onClick = { /* TODO */ }

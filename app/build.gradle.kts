@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
 }
 
+
 android {
     namespace = "com.example.delivery_20"
     compileSdk = 34
@@ -42,6 +43,11 @@ android {
     buildFeatures {
         compose = true
     }
+
+    buildFeatures {
+        compose = true
+    }
+
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.7"
     }
