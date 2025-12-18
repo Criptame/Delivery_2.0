@@ -93,7 +93,9 @@ fun HomeScreen(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.padding(bottom = 16.dp)
         ) {
-            listOf("Todos", "Pizza", "Hamburguesas", "Sushi", "Mexicana", "Postres").forEach { category ->
+            listOf("Todos", "Pizza", "Hamburguesas", "Sushi"
+                , "Mexicana",
+                "Postres").forEach { category ->
                 FilterChip(
                     selected = category == "Todos",
                     onClick = { /* Filtrar por categoría */ },

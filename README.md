@@ -28,6 +28,8 @@
 4. Ejecutar en emulador o dispositivo físico
 
 ##APK Firmado:
+Firma realizada, mas informacion se 
+mostrara aqui antes del dia de la entrega
 
 
 ## Roles de usuario:

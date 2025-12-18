@@ -55,11 +55,7 @@ fun MainApp() {
                         label = { Text(item.title) },
                         selected = currentDestination?.route == item.route,
                         onClick = {
-                            // Cerrar drawer primero
-                            coroutineScope.launch {
-                                drawerState.close()
-                            }
-
+                            coroutineScope.launch { drawerState.close() }
                             if (item.route == Screen.Home.route) {
                                 navController.navigate(Screen.Home.route) {
                                     popUpTo(Screen.Home.route) { inclusive = true }
@@ -84,11 +80,7 @@ fun MainApp() {
                 TopAppBarWithMenu(
                     title = getScreenTitle(currentDestination),
                     navController = navController,
-                    onMenuClick = {
-                        coroutineScope.launch {
-                            drawerState.open()
-                        }
-                    },
+                    onMenuClick = { coroutineScope.launch { drawerState.open() } },
                     showBackButton = currentDestination?.route != Screen.Home.route,
                     onBackClick = { navController.popBackStack() }
                 )
@@ -112,7 +104,6 @@ fun MainApp() {
         }
     }
 }
-
 // Componente para el header del drawer
 @Composable
 fun DrawerHeader() {

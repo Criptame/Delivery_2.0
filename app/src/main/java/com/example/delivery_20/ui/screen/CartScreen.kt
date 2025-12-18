@@ -16,19 +16,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.delivery_20.model.CartItem
 import com.example.delivery_20.viewmodel.CartViewModel
-import com.example.delivery_20.viewmodel.CartItem  // ¡IMPORTANTE!
 
 @Composable
 fun CartScreen(
     navController: NavHostController,
-    cartViewModel: CartViewModel = viewModel()
+    cartViewModel: CartViewModel // ← Recibir como parámetro (NO viewModel() aquí)
 ) {
     // Observar estado del carrito
     val cartItems by cartViewModel.cartItems.collectAsState()
     val cartTotal by cartViewModel.cartTotal.collectAsState()
+
+    // Debug para verificar
+    println("🛒 CartScreen - Items en carrito: ${cartItems.size}")
+    cartItems.forEachIndexed { index, item ->
+        println("🛒 CartScreen - [$index] ${item.foodItem.name}: ${item.quantity}")
+    }
 
     // Costo de envío fijo
     val shippingCost = 2000 // $2.000 CLP
@@ -117,7 +122,10 @@ fun CartScreen(
 
                 // Botones
                 Button(
-                    onClick = { /* TODO: Ir a pantalla de pago */ },
+                    onClick = {
+                        // Navegar a la pantalla de confirmación
+                        navController.navigate("order_confirmation")
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary
@@ -125,6 +133,7 @@ fun CartScreen(
                 ) {
                     Text("Continuar con el pago")
                 }
+
 
                 OutlinedButton(
                     onClick = { navController.popBackStack() },
@@ -189,7 +198,7 @@ fun CartScreen(
 
 @Composable
 fun CartItemCard(
-    cartItem: CartItem,  // ¡Ahora usa el CartItem importado!
+    cartItem: CartItem,
     onIncrement: () -> Unit,
     onDecrement: () -> Unit,
     onRemove: () -> Unit

@@ -1,30 +1,24 @@
 package com.example.delivery_20.ui.navigation
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.delivery_20.screen.*
+import com.example.delivery_20.viewmodel.CartViewModel
 
-
-// Actualiza la clase Screen con las nuevas rutas
 sealed class Screen(val route: String) {
     object Home : Screen("home")
-    object Search : Screen("search") // NUEVO
-    object History : Screen("history") // NUEVO
-    object RestaurantDetail : Screen("restaurant_detail/{restaurantId}") {
-        fun createRoute(restaurantId: String) = "restaurant_detail/$restaurantId"
-    }
+    object RestaurantDetail : Screen("restaurant_detail/{restaurantId}")
     object Cart : Screen("cart")
     object Profile : Screen("profile")
-    object Settings : Screen("settings") // NUEVO
-    object Help : Screen("help") // NUEVO
+    object Camera : Screen("camera")
+    object Location : Screen("location")
     object Login : Screen("login")
     object Register : Screen("register")
-    object EditProfile : Screen("edit_profile")
 }
 
 @Composable
@@ -38,48 +32,50 @@ fun AppNavigation(
         startDestination = startDestination,
         modifier = modifier
     ) {
-        // Pantallas existentes
+        // 1. Home
         composable(Screen.Home.route) {
             HomeScreen(navController = navController)
         }
+
+        // 2. Detalle Restaurante (CON cartViewModel)
         composable(Screen.RestaurantDetail.route) { backStackEntry ->
             val restaurantId = backStackEntry.arguments?.getString("restaurantId") ?: ""
             RestaurantDetailScreen(
                 navController = navController,
-                restaurantId = restaurantId
+                restaurantId = restaurantId,
+                cartViewModel = viewModel()  // ← ¡AGREGA ESTO!
             )
         }
+
+        // 3. Carrito (CON cartViewModel)
         composable(Screen.Cart.route) {
-            CartScreen(navController = navController)
+            CartScreen(
+                navController = navController,
+                cartViewModel = viewModel()  // ← ¡AGREGA ESTO!
+            )
         }
+
+        // 4. Perfil
         composable(Screen.Profile.route) {
             ProfileScreen(navController = navController)
         }
 
-        // NUEVAS PANTALLAS
-        composable(Screen.Search.route) {
-            SearchScreen(navController = navController)
-        }
-
-        composable(Screen.History.route) {
-            HistoryScreen(navController = navController)
-        }
-
-        // En la clase Screen:
-        object Camera : Screen("camera")
-
-// En el NavHost (dentro del composable):
-        composable(Screen.Camera.route) { backStackEntry ->
+        // 5. Cámara (SIN cartViewModel)
+        composable(Screen.Camera.route) {
             CameraScreen(
                 navController = navController,
                 onPhotoTaken = { uri ->
-                    // Guardar URI en ViewModel o estado global
-                    // Ejemplo: orderViewModel.setOrderPhoto(uri)
+                    println("📸 Foto: $uri")
                 }
             )
         }
 
-        // Pantallas de autenticación
+        // 6. GPS
+        composable(Screen.Location.route) {
+            LocationScreen(navController = navController)
+        }
+
+        // 7. Login
         composable(Screen.Login.route) {
             LoginScreen(
                 navController = navController,
@@ -89,6 +85,8 @@ fun AppNavigation(
                 }
             )
         }
+
+        // 8. Registro
         composable(Screen.Register.route) {
             RegisterScreen(
                 navController = navController,
@@ -97,10 +95,6 @@ fun AppNavigation(
                     navController.navigate(Screen.Profile.route)
                 }
             )
-        }
-        composable(Screen.EditProfile.route) {
-            // TODO: Crear pantalla de edición de perfil
-            Text("Editar perfil (en desarrollo)")
         }
     }
 }

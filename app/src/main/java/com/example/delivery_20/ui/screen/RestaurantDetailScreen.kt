@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.delivery_20.model.Restaurant
 import com.example.delivery_20.model.FoodItem
@@ -24,15 +23,16 @@ import kotlinx.coroutines.delay
 @Composable
 fun RestaurantDetailScreen(
     navController: NavHostController,
-    restaurantId: String
+    restaurantId: String,
+    cartViewModel: CartViewModel // ← Recibir como parámetro (NO viewModel() aquí)
 ) {
-    // ViewModel del carrito
-    val cartViewModel: CartViewModel = viewModel()
-
-    // DEBUG: Observar estado del carrito
+    // Observar estado del carrito
     val cartItems by cartViewModel.cartItems.collectAsState()
-    val cartSize = cartItems.size
     val totalItems = cartItems.sumOf { it.quantity }
+
+    // Debug para verificar
+    println("📱 RestaurantDetailScreen - Items en carrito: ${cartItems.size}")
+    println("📱 RestaurantDetailScreen - Total items: $totalItems")
 
     // Determinar qué restaurante es según el ID
     val (restaurant, foodItems) = remember(restaurantId) {
@@ -119,7 +119,7 @@ fun RestaurantDetailScreen(
                 title = {
                     Column {
                         Text(restaurant.name)
-                        // DEBUG: Mostrar info del carrito
+                        // Mostrar info del carrito
                         Text(
                             "🛒 Carrito: $totalItems items",
                             style = MaterialTheme.typography.labelSmall,
@@ -163,7 +163,7 @@ fun RestaurantDetailScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // DEBUG: Panel informativo (temporal)
+            // Panel informativo del carrito
             if (totalItems > 0) {
                 Surface(
                     color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
@@ -310,7 +310,7 @@ fun RestaurantDetailScreen(
     }
 }
 
-// Funciones para obtener los menús específicos de cada restaurante (mantener igual)
+// Funciones para obtener los menús específicos de cada restaurante
 private fun getItalianRestaurantMenu(): List<FoodItem> {
     return listOf(
         FoodItem("i1", "Pizza Margarita", "Queso mozzarella y tomate fresco", 8990, "1"),
@@ -378,17 +378,15 @@ fun FoodItemCard(
     isInCart: Boolean = false
 ) {
     var isAdded by remember { mutableStateOf(false) }
-    var currentIsInCart by remember { mutableStateOf(isInCart) }
 
-    // Actualizar cuando cambie el estado del carrito
-    LaunchedEffect(isInCart) {
-        currentIsInCart = isInCart
-    }
+    // Observar el carrito para actualizar el estado
+    val cartItems by cartViewModel.cartItems.collectAsState()
+    val currentIsInCart = cartItems.any { it.foodItem.id == foodItem.id }
 
-    // LaunchedEffect para resetear el estado "Agregado"
-    LaunchedEffect(isAdded) {
-        if (isAdded) {
-            delay(2000)
+    // Resetear estado "Agregado"
+    if (isAdded) {
+        LaunchedEffect(Unit) {
+            kotlinx.coroutines.delay(1500)
             isAdded = false
         }
     }
@@ -424,7 +422,6 @@ fun FoodItemCard(
                     color = MaterialTheme.colorScheme.primary
                 )
 
-                // DEBUG: Mostrar si ya está en el carrito
                 if (currentIsInCart) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
@@ -437,14 +434,17 @@ fun FoodItemCard(
 
             Button(
                 onClick = {
-                    // DEBUG: Log antes de agregar
-                    println("🛒 DEBUG: Botón presionado - ${foodItem.name}")
+                    println("🛒 ===== BOTÓN PRESIONADO =====")
+                    println("🛒 Producto: ${foodItem.name}")
+                    println("🛒 ID: ${foodItem.id}")
+                    println("🛒 ¿Ya en carrito?: $currentIsInCart")
+
+                    // Agregar al carrito
                     cartViewModel.addToCart(foodItem)
                     isAdded = true
-                    currentIsInCart = true
                 },
                 modifier = Modifier.padding(start = 16.dp),
-                enabled = !currentIsInCart, // Deshabilitar si ya está en carrito
+                enabled = !currentIsInCart,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = when {
                         currentIsInCart -> MaterialTheme.colorScheme.tertiaryContainer
@@ -472,7 +472,7 @@ fun FoodItemCard(
                 } else {
                     Icon(
                         imageVector = Icons.Default.AddShoppingCart,
-                        contentDescription = "Agregar al carrito",
+                        contentDescription = "Agregar",
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
