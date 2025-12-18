@@ -7,7 +7,7 @@
 ## Funcionalidades implementadas:
 - Pantalla de inicio con lista de restaurantes
 - Pantalla de productos por restaurante
-- Carrito de compras (en desarrollo)
+- Carrito de compras
 - Perfil de usuario
 - Navegación entre pantallas
 
@@ -18,8 +18,8 @@
 - StateFlow para manejo de estado
 
 ##Endpoints utilizados:
-- **API Externa:** [Agregar nombre, ej: OpenWeather]
-- **Backend propio:** Firebase Firestore/Auth (o lo que uses)
+- **API Externa:** [Weather para la verificacion del clima dentro de la aplicacion]
+
 
 ## Instrucciones para ejecutar:
 1. Clonar repositorio: `git clone [link_repositorio]`
@@ -28,8 +28,9 @@
 4. Ejecutar en emulador o dispositivo físico
 
 ##APK Firmado:
-Firma realizada, mas informacion se 
-mostrara aqui antes del dia de la entrega
+Firma realizada, desplazada en una carpeta dentro del proyecto
+(mas probablemente dentro del equipo personal), encontrandose 
+actualmente en una carpeta llamada "FirmaAPK"
 
 
 ## Roles de usuario:
